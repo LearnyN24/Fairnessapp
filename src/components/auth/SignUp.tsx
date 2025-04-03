@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Google } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -130,7 +130,7 @@ const SignUp = ({ onSignIn }: SignUpProps) => {
           onClick={handleGoogleSignIn} 
           disabled={isLoading}
         >
-          <Google className="mr-2 h-4 w-4" /> Google
+          <Mail className="mr-2 h-4 w-4" /> Google
         </Button>
       </CardContent>
       <CardFooter className="flex flex-col space-y-4">
