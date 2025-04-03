@@ -33,10 +33,12 @@ const Index = () => {
               Train Model
             </Button>
           </Link>
-          <Button variant="ghost" className="gap-2">
-            <Info className="h-4 w-4" />
-            Learn About Fairness
-          </Button>
+          <Link to="/fairness-docs">
+            <Button variant="ghost" className="gap-2">
+              <Info className="h-4 w-4" />
+              Learn About Fairness
+            </Button>
+          </Link>
         </div>
       </section>
 
@@ -70,9 +72,11 @@ const Index = () => {
                 </li>
               </ul>
               <div className="mt-4">
-                <Button variant="link" className="p-0 h-auto text-teal-600">
-                  Read fairness documentation →
-                </Button>
+                <Link to="/fairness-docs">
+                  <Button variant="link" className="p-0 h-auto text-teal-600">
+                    Read fairness documentation →
+                  </Button>
+                </Link>
               </div>
             </div>
             <RecentModels />
