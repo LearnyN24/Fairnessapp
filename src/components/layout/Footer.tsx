@@ -12,6 +12,9 @@ const Footer = () => {
               EquaHealth AI - Fair Healthcare Predictions
             </span>
           </div>
+          <div className="text-sm text-muted-foreground">
+            Created by Kudakwashe Sevenzo Petros
+          </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <a href="#" className="hover:text-primary transition-colors">About</a>
             <a href="#" className="hover:text-primary transition-colors">Privacy</a>
