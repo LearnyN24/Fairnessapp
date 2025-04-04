@@ -125,6 +125,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contact
 
-Your Name - [@YourTwitter](https://twitter.com/YourTwitter)
+Your Name - Learny Tech Systems +263778473316
 
 Project Link: [https://github.com/LearnyN24/Fairnessapp](https://github.com/LearnyN24/Fairnessapp)
