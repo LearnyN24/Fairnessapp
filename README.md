@@ -1,73 +1,132 @@
-# Welcome to your Lovable project
+# Fairness AI Insights
 
-## Project info
+A comprehensive web application for managing and analyzing AI models with a focus on fairness metrics and insights. This application helps users upload datasets, train models, and monitor fairness metrics across different demographic groups.
 
-**URL**: https://lovable.dev/projects/cbc27bfc-a098-4464-9980-d8ed994aa819
+## Features
 
-## How can I edit this code?
+- **Dataset Management**
+  - Upload and manage datasets
+  - View dataset statistics and distributions
+  - Track dataset versions and changes
 
-There are several ways of editing your application.
+- **Model Training & Management**
+  - Train new AI models
+  - Monitor training progress
+  - View model performance metrics
+  - Delete models with confirmation
 
-**Use Lovable**
+- **Fairness Analysis**
+  - Monitor fairness metrics across demographic groups
+  - Visualize bias and fairness scores
+  - Set fairness thresholds
+  - Receive fairness warnings
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/cbc27bfc-a098-4464-9980-d8ed994aa819) and start prompting.
+- **User Profile & Settings**
+  - Manage account information
+  - Configure application settings
+  - Enable two-factor authentication
+  - Change password securely
 
-Changes made via Lovable will be committed automatically to this repo.
+## Tech Stack
 
-**Use your preferred IDE**
+- **Frontend Framework**: React with TypeScript
+- **UI Components**: Shadcn UI
+- **Styling**: Tailwind CSS
+- **State Management**: React Context
+- **Routing**: React Router
+- **Charts**: Recharts
+- **Form Handling**: React Hook Form
+- **Build Tool**: Vite
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
 
-Follow these steps:
+- Node.js (v16 or higher)
+- npm (v7 or higher)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/LearnyN24/Fairnessapp.git
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+2. Navigate to the project directory:
+   ```bash
+   cd Fairnessapp
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+The application will be available at `http://localhost:5173`
+
+### Building for Production
+
+To create a production build:
+
+```bash
+npm run build
 ```
 
-**Edit a file directly in GitHub**
+To preview the production build:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm run preview
+```
 
-**Use GitHub Codespaces**
+## Project Structure
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+src/
+├── components/         # Reusable UI components
+├── context/           # React Context providers
+├── pages/             # Application pages
+├── lib/               # Utility functions
+└── App.tsx            # Main application component
+```
 
-## What technologies are used for this project?
+## Deployment
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
+### Using Lovable
 
 Simply open [Lovable](https://lovable.dev/projects/cbc27bfc-a098-4464-9980-d8ed994aa819) and click on Share -> Publish.
 
-## Can I connect a custom domain to my Lovable project?
+### Custom Domain
 
-Yes it is!
+To connect a custom domain:
+1. Navigate to Project > Settings > Domains
+2. Click Connect Domain
+3. Follow the instructions in [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Contributing
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Shadcn UI for the beautiful component library
+- Recharts for the charting capabilities
+- The React and TypeScript communities for their excellent documentation and tools
+
+## Contact
+
+Your Name - [@YourTwitter](https://twitter.com/YourTwitter)
+
+Project Link: [https://github.com/LearnyN24/Fairnessapp](https://github.com/LearnyN24/Fairnessapp)
