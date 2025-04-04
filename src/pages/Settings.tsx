@@ -1,4 +1,4 @@
-
+import { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -7,8 +7,22 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSettings } from "@/context/SettingsContext";
+import { useToast } from "@/components/ui/use-toast";
 
 const Settings = () => {
+  const { settings, updateSettings } = useSettings();
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("general");
+
+  const handleSettingChange = (newSettings: Partial<typeof settings>, section: string) => {
+    updateSettings(newSettings);
+    toast({
+      title: "Settings Saved",
+      description: `Your ${section} settings have been updated.`,
+    });
+  };
+
   return (
     <Layout activePage="settings">
       <section className="mb-8">
@@ -22,7 +36,7 @@ const Settings = () => {
         </div>
       </section>
 
-      <Tabs defaultValue="general" className="space-y-6">
+      <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList>
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="fairness">Fairness</TabsTrigger>
@@ -41,11 +55,24 @@ const Settings = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Name</Label>
-                    <Input id="name" placeholder="Your name" />
+                    <Input 
+                      id="name" 
+                      name="name" 
+                      value={settings.name} 
+                      onChange={(e) => handleSettingChange({ name: e.target.value }, "general")} 
+                      placeholder="Your name" 
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="Your email address" />
+                    <Input 
+                      id="email" 
+                      name="email" 
+                      type="email" 
+                      value={settings.email} 
+                      onChange={(e) => handleSettingChange({ email: e.target.value }, "general")} 
+                      placeholder="Your email address" 
+                    />
                   </div>
                 </div>
               </div>
@@ -60,7 +87,12 @@ const Settings = () => {
                         Display warnings when fairness metrics fall below threshold
                       </p>
                     </div>
-                    <Switch id="show-fairness-warnings" defaultChecked />
+                    <Switch 
+                      id="show-fairness-warnings" 
+                      name="show-fairness-warnings"
+                      checked={settings.showFairnessWarnings}
+                      onCheckedChange={(checked) => handleSettingChange({ showFairnessWarnings: checked }, "general")}
+                    />
                   </div>
                   
                   <div className="flex items-center justify-between">
@@ -70,13 +102,14 @@ const Settings = () => {
                         Display explanatory tooltips for fairness metrics
                       </p>
                     </div>
-                    <Switch id="show-tooltips" defaultChecked />
+                    <Switch 
+                      id="show-tooltips" 
+                      name="show-tooltips"
+                      checked={settings.showTooltips}
+                      onCheckedChange={(checked) => handleSettingChange({ showTooltips: checked }, "general")}
+                    />
                   </div>
                 </div>
-              </div>
-
-              <div className="flex justify-end">
-                <Button>Save Settings</Button>
               </div>
             </CardContent>
           </Card>
@@ -94,14 +127,32 @@ const Settings = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="dp-threshold">Demographic Parity Threshold</Label>
-                    <Input id="dp-threshold" type="number" defaultValue="0.8" min="0" max="1" step="0.01" />
+                    <Input 
+                      id="dp-threshold" 
+                      name="dp-threshold"
+                      type="number" 
+                      value={settings.demographicParityThreshold}
+                      onChange={(e) => handleSettingChange({ demographicParityThreshold: parseFloat(e.target.value) }, "fairness")}
+                      min="0" 
+                      max="1" 
+                      step="0.01" 
+                    />
                     <p className="text-xs text-muted-foreground">
                       Minimum acceptable ratio (0-1)
                     </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="eo-threshold">Equalized Odds Threshold</Label>
-                    <Input id="eo-threshold" type="number" defaultValue="0.8" min="0" max="1" step="0.01" />
+                    <Input 
+                      id="eo-threshold" 
+                      name="eo-threshold"
+                      type="number" 
+                      value={settings.equalizedOddsThreshold}
+                      onChange={(e) => handleSettingChange({ equalizedOddsThreshold: parseFloat(e.target.value) }, "fairness")}
+                      min="0" 
+                      max="1" 
+                      step="0.01" 
+                    />
                     <p className="text-xs text-muted-foreground">
                       Minimum acceptable ratio (0-1)
                     </p>
@@ -114,7 +165,11 @@ const Settings = () => {
                 <div className="space-y-3">
                   <div className="space-y-2">
                     <Label htmlFor="default-mitigation">Default Mitigation Method</Label>
-                    <Select defaultValue="reweighing">
+                    <Select 
+                      name="default-mitigation" 
+                      value={settings.defaultMitigationMethod}
+                      onValueChange={(value) => handleSettingChange({ defaultMitigationMethod: value }, "fairness")}
+                    >
                       <SelectTrigger id="default-mitigation">
                         <SelectValue placeholder="Select method" />
                       </SelectTrigger>
@@ -134,13 +189,14 @@ const Settings = () => {
                         Automatically apply fairness constraints to all models
                       </p>
                     </div>
-                    <Switch id="apply-automatically" defaultChecked />
+                    <Switch 
+                      id="apply-automatically" 
+                      name="apply-automatically"
+                      checked={settings.applyFairnessAutomatically}
+                      onCheckedChange={(checked) => handleSettingChange({ applyFairnessAutomatically: checked }, "fairness")}
+                    />
                   </div>
                 </div>
-              </div>
-
-              <div className="flex justify-end">
-                <Button>Save Fairness Settings</Button>
               </div>
             </CardContent>
           </Card>
@@ -158,11 +214,27 @@ const Settings = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="max-threads">Max CPU Threads</Label>
-                    <Input id="max-threads" type="number" defaultValue="4" />
+                    <Input 
+                      id="max-threads" 
+                      name="max-threads"
+                      type="number" 
+                      value={settings.maxCpuThreads}
+                      onChange={(e) => handleSettingChange({ maxCpuThreads: parseInt(e.target.value) }, "advanced")}
+                      min="1"
+                      max="32"
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="memory-limit">Memory Limit (GB)</Label>
-                    <Input id="memory-limit" type="number" defaultValue="8" />
+                    <Input 
+                      id="memory-limit" 
+                      name="memory-limit"
+                      type="number" 
+                      value={settings.memoryLimitGB}
+                      onChange={(e) => handleSettingChange({ memoryLimitGB: parseInt(e.target.value) }, "advanced")}
+                      min="1"
+                      max="64"
+                    />
                   </div>
                 </div>
                 
@@ -173,7 +245,12 @@ const Settings = () => {
                       Utilize GPU for model training when available
                     </p>
                   </div>
-                  <Switch id="use-gpu" defaultChecked />
+                  <Switch 
+                    id="use-gpu" 
+                    name="use-gpu"
+                    checked={settings.useGpuAcceleration}
+                    onCheckedChange={(checked) => handleSettingChange({ useGpuAcceleration: checked }, "advanced")}
+                  />
                 </div>
               </div>
 
@@ -182,7 +259,12 @@ const Settings = () => {
                 <div className="space-y-3">
                   <div className="space-y-2">
                     <Label htmlFor="storage-location">Storage Location</Label>
-                    <Input id="storage-location" defaultValue="./data" />
+                    <Input 
+                      id="storage-location" 
+                      name="storage-location"
+                      value={settings.storageLocation}
+                      onChange={(e) => handleSettingChange({ storageLocation: e.target.value }, "advanced")}
+                    />
                   </div>
                   
                   <div className="flex items-center justify-between">
@@ -192,13 +274,14 @@ const Settings = () => {
                         Automatically backup datasets and models
                       </p>
                     </div>
-                    <Switch id="auto-backup" />
+                    <Switch 
+                      id="auto-backup" 
+                      name="auto-backup"
+                      checked={settings.automaticBackups}
+                      onCheckedChange={(checked) => handleSettingChange({ automaticBackups: checked }, "advanced")}
+                    />
                   </div>
                 </div>
-              </div>
-
-              <div className="flex justify-end">
-                <Button>Save Advanced Settings</Button>
               </div>
             </CardContent>
           </Card>

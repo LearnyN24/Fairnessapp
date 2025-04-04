@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export interface User {
@@ -16,6 +15,8 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  updateUserProfile: (data: Partial<User>) => Promise<void>;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -105,8 +106,52 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(null);
   };
 
+  const updateUserProfile = async (data: Partial<User>) => {
+    if (!user) {
+      throw new Error("No user is signed in");
+    }
+
+    try {
+      // Simulate API call
+      const updatedUser = { ...user, ...data };
+      
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+    } catch (error) {
+      console.error("Profile update failed:", error);
+      throw error;
+    }
+  };
+
+  const updatePassword = async (currentPassword: string, newPassword: string) => {
+    if (!user) {
+      throw new Error("No user is signed in");
+    }
+
+    try {
+      // Simulate API call to verify current password and update to new password
+      // In a real app, this would make an API call to verify the current password
+      // and then update to the new password
+      
+      // For demo purposes, we'll just simulate a successful password change
+      console.log("Password updated successfully");
+    } catch (error) {
+      console.error("Password update failed:", error);
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      signUp, 
+      signIn, 
+      signInWithGoogle, 
+      signOut,
+      updateUserProfile,
+      updatePassword
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,4 +1,3 @@
-
 import {
   Table,
   TableBody,
@@ -19,47 +18,12 @@ import {
   Check, 
   AlertCircle 
 } from "lucide-react";
-
-const models = [
-  {
-    id: "m1",
-    name: "Diabetes Risk Prediction",
-    algorithm: "Random Forest",
-    datasetSize: "5,428",
-    accuracy: 0.91,
-    fairnessStatus: "fair",
-    lastUpdated: "2 days ago",
-  },
-  {
-    id: "m2",
-    name: "Heart Disease Classifier",
-    algorithm: "Neural Network",
-    datasetSize: "2,190",
-    accuracy: 0.88,
-    fairnessStatus: "biased",
-    lastUpdated: "5 days ago",
-  },
-  {
-    id: "m3",
-    name: "Stroke Risk Assessment",
-    algorithm: "Gradient Boosting",
-    datasetSize: "3,976",
-    accuracy: 0.85,
-    fairnessStatus: "fair",
-    lastUpdated: "1 week ago",
-  },
-  {
-    id: "m4",
-    name: "Cancer Recurrence Prediction",
-    algorithm: "Logistic Regression",
-    datasetSize: "1,842",
-    accuracy: 0.82,
-    fairnessStatus: "biased",
-    lastUpdated: "2 weeks ago",
-  },
-];
+import { useModels } from "@/context/ModelsContext";
+import DeleteModelButton from "@/components/models/DeleteModelButton";
 
 const RecentModels = () => {
+  const { models, deleteModel } = useModels();
+
   return (
     <Card className="col-span-full">
       <CardHeader>
@@ -78,6 +42,7 @@ const RecentModels = () => {
               <TableHead>Accuracy</TableHead>
               <TableHead>Fairness Status</TableHead>
               <TableHead className="hidden md:table-cell">Last Updated</TableHead>
+              <TableHead className="w-[50px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -99,6 +64,13 @@ const RecentModels = () => {
                   )}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">{model.lastUpdated}</TableCell>
+                <TableCell>
+                  <DeleteModelButton
+                    modelId={model.id}
+                    modelName={model.name}
+                    onDelete={deleteModel}
+                  />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -1,10 +1,10 @@
-
 import { ReactNode } from "react";
 import { Activity, FileUp, Heart, BarChart3, Settings, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/context/AuthContext";
+import { useSettings } from "@/context/SettingsContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -37,15 +37,15 @@ interface HeaderProps {
 
 const Header = ({ activePage = "home" }: HeaderProps) => {
   const { user, signOut } = useAuth();
+  const { settings } = useSettings();
   const isMobile = useIsMobile();
   
-  const initials = user?.name
-    ? user.name
-        .split(' ')
-        .map(name => name[0])
-        .join('')
-        .toUpperCase()
-    : "U";
+  const displayName = settings.name || user?.name || "User";
+  const initials = displayName
+    .split(' ')
+    .map(name => name[0])
+    .join('')
+    .toUpperCase();
 
   return (
     <header className="border-b">
@@ -86,7 +86,7 @@ const Header = ({ activePage = "home" }: HeaderProps) => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="rounded-full" size="icon">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.photoURL} alt={user.name} />
+                    <AvatarImage src={user.photoURL} alt={displayName} />
                     <AvatarFallback>{initials}</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -94,7 +94,7 @@ const Header = ({ activePage = "home" }: HeaderProps) => {
               <DropdownMenuContent align="end" className="bg-card border shadow-md">
                 <DropdownMenuItem className="font-medium">
                   <Link to="/profile" className="flex items-center">
-                    {user.name}
+                    {displayName}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>

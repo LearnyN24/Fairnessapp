@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent, 
@@ -15,14 +14,53 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Slider } from "@/components/ui/slider";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { useModels } from "@/context/ModelsContext";
+import { useDatasets } from "@/context/DatasetsContext";
 
-const ModelTrainingForm = () => {
+interface ModelTrainingFormProps {
+  defaultDataset: string;
+  defaultTargetVariables: string[];
+  recommendedAlgorithms: string[];
+}
+
+const ModelTrainingForm = ({ defaultDataset, defaultTargetVariables, recommendedAlgorithms }: ModelTrainingFormProps) => {
   const [modelName, setModelName] = useState("");
   const [isTraining, setIsTraining] = useState(false);
+  const [trainingProgress, setTrainingProgress] = useState(0);
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState(recommendedAlgorithms[0]);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { addModel } = useModels();
+  const { datasets } = useDatasets();
 
-  const handleTrainModel = () => {
+  const dataset = datasets.find(d => d.id === defaultDataset);
+
+  useEffect(() => {
+    let progressInterval: NodeJS.Timeout;
+    
+    if (isTraining) {
+      progressInterval = setInterval(() => {
+        setTrainingProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(progressInterval);
+            return 100;
+          }
+          return prev + 5;
+        });
+      }, 150);
+    }
+
+    return () => {
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+    };
+  }, [isTraining]);
+
+  const handleTrainModel = async () => {
     if (!modelName) {
       toast({
         title: "Error",
@@ -33,17 +71,47 @@ const ModelTrainingForm = () => {
     }
 
     setIsTraining(true);
+    setTrainingProgress(0);
     
-    // Simulate training process
-    setTimeout(() => {
-      setIsTraining(false);
+    try {
+      // Simulate training process
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Add the trained model to the context
+      addModel({
+        name: modelName,
+        algorithm: selectedAlgorithm === "lr" ? "Logistic Regression" :
+                 selectedAlgorithm === "rf" ? "Random Forest" :
+                 selectedAlgorithm === "xgb" ? "XGBoost" :
+                 selectedAlgorithm === "nn" ? "Neural Network" : selectedAlgorithm,
+        datasetId: defaultDataset,
+        datasetSize: dataset?.recordCount.toString() || "0",
+        accuracy: 0.85 + Math.random() * 0.1, // Simulated accuracy between 0.85 and 0.95
+        fairnessStatus: Math.random() > 0.3 ? "fair" : "biased", // 70% chance of being fair
+      });
+
+      // Show success message
       toast({
         title: "Success",
         description: `Model "${modelName}" trained successfully with fairness constraints.`,
       });
-      // Reset form
+
+      // Reset form state
       setModelName("");
-    }, 3000);
+      setIsTraining(false);
+      setTrainingProgress(0);
+
+      // Navigate to models page with replace to prevent back navigation
+      navigate("/models", { replace: true });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to train model. Please try again.",
+        variant: "destructive"
+      });
+      setIsTraining(false);
+      setTrainingProgress(0);
+    }
   };
 
   return (
@@ -66,55 +134,75 @@ const ModelTrainingForm = () => {
                   placeholder="e.g., Heart Disease Classifier" 
                   value={modelName}
                   onChange={(e) => setModelName(e.target.value)}
+                  disabled={isTraining}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="dataset">Select Dataset</Label>
-                <Select defaultValue="mimic">
-                  <SelectTrigger id="dataset">
-                    <SelectValue placeholder="Select dataset" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="mimic">MIMIC-III Heart Failure</SelectItem>
-                    <SelectItem value="diabetes">Diabetes Readmission</SelectItem>
-                    <SelectItem value="covid">COVID-19 ICU Prediction</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="dataset">Dataset</Label>
+                <Input 
+                  id="dataset" 
+                  value={defaultDataset}
+                  disabled
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="algorithm">Algorithm</Label>
-                <Select defaultValue="rf">
+                <Select 
+                  defaultValue={recommendedAlgorithms[0]}
+                  onValueChange={setSelectedAlgorithm}
+                  disabled={isTraining}
+                >
                   <SelectTrigger id="algorithm">
                     <SelectValue placeholder="Select algorithm" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="lr">Logistic Regression</SelectItem>
-                    <SelectItem value="rf">Random Forest</SelectItem>
-                    <SelectItem value="xgb">XGBoost</SelectItem>
-                    <SelectItem value="nn">Neural Network</SelectItem>
+                    {recommendedAlgorithms.map((algo) => (
+                      <SelectItem key={algo} value={algo}>
+                        {algo === "lr" ? "Logistic Regression" :
+                         algo === "rf" ? "Random Forest" :
+                         algo === "xgb" ? "XGBoost" :
+                         algo === "nn" ? "Neural Network" : algo}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="target">Target Variable</Label>
-                <Select defaultValue="readmission">
+                <Select 
+                  defaultValue={defaultTargetVariables[0]}
+                  disabled={isTraining}
+                >
                   <SelectTrigger id="target">
                     <SelectValue placeholder="Select target" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="readmission">Readmission Risk</SelectItem>
-                    <SelectItem value="mortality">Mortality</SelectItem>
-                    <SelectItem value="los">Length of Stay > 7 days</SelectItem>
+                    {defaultTargetVariables.map((target) => (
+                      <SelectItem key={target} value={target}>
+                        {target.charAt(0).toUpperCase() + target.slice(1)}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
           </div>
+
+          {/* Training Progress */}
+          {isTraining && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Training Progress</span>
+                <span>{trainingProgress}%</span>
+              </div>
+              <Progress value={trainingProgress} className="w-full" />
+            </div>
+          )}
 
           {/* Advanced Settings */}
           <Accordion type="single" collapsible>
@@ -260,7 +348,7 @@ const ModelTrainingForm = () => {
           disabled={!modelName || isTraining}
           className="w-full"
         >
-          {isTraining ? "Training Model..." : "Train Model"}
+          {isTraining ? "Training..." : "Train Model"}
         </Button>
       </CardFooter>
     </Card>
