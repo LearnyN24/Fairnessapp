@@ -67,7 +67,7 @@ A comprehensive web application for managing and analyzing AI models with a focu
    npm run dev
    ```
 
-The application will be available at `http://localhost:5173`
+The application will be available at `http://localhost:8080`
 
 ### Building for Production
 
@@ -96,9 +96,7 @@ src/
 
 ## Deployment
 
-### Using Lovable
 
-Simply open [Lovable](https://lovable.dev/projects/cbc27bfc-a098-4464-9980-d8ed994aa819) and click on Share -> Publish.
 
 ### Custom Domain
 
