@@ -8,6 +8,10 @@ export interface User {
   provider?: string;
 }
 
+interface StoredUser extends User {
+  password: string;
+}
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -41,23 +45,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const parsedUser = JSON.parse(storedUser);
+      // Don't include password in the user state
+      const { password, ...userWithoutPassword } = parsedUser;
+      setUser(userWithoutPassword);
     }
     setLoading(false);
   }, []);
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
-      // Simulate API call
-      const newUser: User = {
+      // Check if user already exists
+      const existingUsers = JSON.parse(localStorage.getItem("users") || "[]") as StoredUser[];
+      if (existingUsers.some(u => u.email === email)) {
+        throw new Error("User with this email already exists");
+      }
+
+      // Create new user
+      const newUser: StoredUser = {
         id: `user_${Math.random().toString(36).substring(2, 9)}`,
         name,
         email,
+        password, // Store password for validation
         provider: "email"
       };
       
-      localStorage.setItem("user", JSON.stringify(newUser));
-      setUser(newUser);
+      // Save to users list
+      existingUsers.push(newUser);
+      localStorage.setItem("users", JSON.stringify(existingUsers));
+
+      // Don't include password in the user state
+      const { password: _, ...userWithoutPassword } = newUser;
+      setUser(userWithoutPassword);
     } catch (error) {
       console.error("Sign up failed:", error);
       throw error;
@@ -66,16 +85,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      // Simulate API call
-      const user: User = {
-        id: `user_${Math.random().toString(36).substring(2, 9)}`,
-        name: email.split('@')[0],
-        email,
-        provider: "email"
-      };
+      // Get users from storage
+      const users = JSON.parse(localStorage.getItem("users") || "[]") as StoredUser[];
       
-      localStorage.setItem("user", JSON.stringify(user));
-      setUser(user);
+      // Find user and validate password
+      const user = users.find(u => u.email === email);
+      if (!user || user.password !== password) {
+        throw new Error("Invalid email or password");
+      }
+
+      // Don't include password in the user state
+      const { password: _, ...userWithoutPassword } = user;
+      localStorage.setItem("user", JSON.stringify(userWithoutPassword));
+      setUser(userWithoutPassword);
     } catch (error) {
       console.error("Sign in failed:", error);
       throw error;
@@ -112,9 +134,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     try {
-      // Simulate API call
-      const updatedUser = { ...user, ...data };
+      // Get users from storage
+      const users = JSON.parse(localStorage.getItem("users") || "[]") as StoredUser[];
       
+      // Update user in users list
+      const userIndex = users.findIndex(u => u.email === user.email);
+      if (userIndex !== -1) {
+        users[userIndex] = { ...users[userIndex], ...data };
+        localStorage.setItem("users", JSON.stringify(users));
+      }
+
+      // Update current user state
+      const updatedUser = { ...user, ...data };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
     } catch (error) {
@@ -129,12 +160,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     try {
-      // Simulate API call to verify current password and update to new password
-      // In a real app, this would make an API call to verify the current password
-      // and then update to the new password
+      // Get users from storage
+      const users = JSON.parse(localStorage.getItem("users") || "[]") as StoredUser[];
       
-      // For demo purposes, we'll just simulate a successful password change
-      console.log("Password updated successfully");
+      // Find user and verify current password
+      const userIndex = users.findIndex(u => u.email === user.email);
+      if (userIndex === -1 || users[userIndex].password !== currentPassword) {
+        throw new Error("Current password is incorrect");
+      }
+
+      // Update password
+      users[userIndex].password = newPassword;
+      localStorage.setItem("users", JSON.stringify(users));
     } catch (error) {
       console.error("Password update failed:", error);
       throw error;
