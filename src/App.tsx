@@ -18,6 +18,37 @@ import Terms from "@/pages/Terms";
 import Contact from "@/pages/Contact";
 import NotFound from "@/pages/NotFound";
 import FairnessDocumentation from "@/pages/FairnessDocumentation";
+import { useAuth } from "@/context/AuthContext";
+
+// Protected Route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/signin" />;
+  }
+
+  return <>{children}</>;
+};
+
+// Public Route component (redirects to dashboard if already logged in)
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (user) {
+    return <Navigate to="/dashboard" />;
+  }
+
+  return <>{children}</>;
+};
 
 function App() {
   return (
@@ -27,20 +58,61 @@ function App() {
           <ModelsProvider>
             <SettingsProvider>
               <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/index" element={<Navigate to="/" replace />} />
-                <Route path="/datasets" element={<Datasets />} />
-                <Route path="/models" element={<Models />} />
-                <Route path="/models/train" element={<TrainModel />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/signin" element={<SignIn />} />
-                <Route path="/signup" element={<SignUp />} />
+                {/* Redirect root to signin */}
+                <Route path="/" element={<Navigate to="/signin" replace />} />
+
+                {/* Public routes */}
+                <Route path="/signin" element={
+                  <PublicRoute>
+                    <SignIn />
+                  </PublicRoute>
+                } />
+                <Route path="/signup" element={
+                  <PublicRoute>
+                    <SignUp />
+                  </PublicRoute>
+                } />
                 <Route path="/about" element={<About />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route path="/fairness-docs" element={<FairnessDocumentation />} />
+
+                {/* Protected routes */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Index />
+                  </ProtectedRoute>
+                } />
+                <Route path="/datasets" element={
+                  <ProtectedRoute>
+                    <Datasets />
+                  </ProtectedRoute>
+                } />
+                <Route path="/models" element={
+                  <ProtectedRoute>
+                    <Models />
+                  </ProtectedRoute>
+                } />
+                <Route path="/models/train" element={
+                  <ProtectedRoute>
+                    <TrainModel />
+                  </ProtectedRoute>
+                } />
+                <Route path="/settings" element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/fairness-docs" element={
+                  <ProtectedRoute>
+                    <FairnessDocumentation />
+                  </ProtectedRoute>
+                } />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Toaster />

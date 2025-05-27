@@ -1,17 +1,44 @@
-
 import { useState } from "react";
-import { Mail } from "lucide-react";
+import { Mail, Check, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface SignUpProps {
   onSignIn?: () => void;
 }
+
+interface PasswordRequirement {
+  text: string;
+  validator: (password: string) => boolean;
+}
+
+const passwordRequirements: PasswordRequirement[] = [
+  {
+    text: "At least 8 characters long",
+    validator: (password) => password.length >= 8,
+  },
+  {
+    text: "Contains at least one uppercase letter",
+    validator: (password) => /[A-Z]/.test(password),
+  },
+  {
+    text: "Contains at least one lowercase letter",
+    validator: (password) => /[a-z]/.test(password),
+  },
+  {
+    text: "Contains at least one number",
+    validator: (password) => /[0-9]/.test(password),
+  },
+  {
+    text: "Contains at least one special character",
+    validator: (password) => /[!@#$%^&*(),.?":{}|<>]/.test(password),
+  },
+];
 
 const SignUp = ({ onSignIn }: SignUpProps) => {
   const [name, setName] = useState("");
@@ -20,6 +47,11 @@ const SignUp = ({ onSignIn }: SignUpProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { signUp, signInWithGoogle } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const validatePassword = (password: string): boolean => {
+    return passwordRequirements.every((requirement) => requirement.validator(password));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,13 +64,28 @@ const SignUp = ({ onSignIn }: SignUpProps) => {
       return;
     }
 
+    if (!validatePassword(password)) {
+      toast({
+        title: "Password Requirements",
+        description: "Please ensure your password meets all requirements",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
       await signUp(email, password, name);
       toast({
-        title: "Success!",
-        description: "Your account has been created."
+        title: "Registration Successful!",
+        description: "Your account has been created. Please sign in to continue."
       });
+      // Clear the form
+      setName("");
+      setEmail("");
+      setPassword("");
+      // Redirect to sign in page
+      navigate("/signin");
     } catch (error) {
       toast({
         title: "Sign Up Failed",
@@ -109,6 +156,26 @@ const SignUp = ({ onSignIn }: SignUpProps) => {
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
             />
+            <div className="mt-2 space-y-2">
+              <p className="text-sm font-medium">Password Requirements:</p>
+              <ul className="space-y-1">
+                {passwordRequirements.map((requirement, index) => {
+                  const isMet = requirement.validator(password);
+                  return (
+                    <li key={index} className="flex items-center text-sm">
+                      {isMet ? (
+                        <Check className="h-4 w-4 text-green-500 mr-2" />
+                      ) : (
+                        <X className="h-4 w-4 text-red-500 mr-2" />
+                      )}
+                      <span className={isMet ? "text-green-500" : "text-red-500"}>
+                        {requirement.text}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? "Creating Account..." : "Sign Up"}
